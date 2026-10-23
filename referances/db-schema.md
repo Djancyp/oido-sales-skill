@@ -106,6 +106,8 @@ CREATE TABLE IF NOT EXISTS oido_sales_prospects (
   persona_role    TEXT        CHECK (persona_role IN ('buyer', 'champion', 'blocker', 'other')),
   fit_reason      TEXT        NOT NULL,                -- why it matches the ICP, in one or two sentences
   trigger_event   TEXT,                                -- the "why now", if any
+  signal_type     TEXT,                                -- the ICP trigger event it matched
+  signal_date     DATE,                                -- date of the signal on the source page
   source_url      TEXT        NOT NULL,                -- where each fact came from
   dedupe_key      TEXT        NOT NULL,                -- lower(company_domain) || '|' || lower(coalesce(contact_name, ''))
   status          oido_sales_prospect_status NOT NULL DEFAULT 'new',
@@ -114,6 +116,10 @@ CREATE TABLE IF NOT EXISTS oido_sales_prospects (
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (org_id, dedupe_key)
 );
+
+-- Upgrade path for tables created before these columns existed.
+ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS signal_type TEXT;
+ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS signal_date DATE;
 
 CREATE INDEX IF NOT EXISTS oido_sales_prospects_org_status_idx
   ON oido_sales_prospects (org_id, status);

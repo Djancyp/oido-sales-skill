@@ -41,6 +41,8 @@ Fill every column the facts support. Leave a column NULL rather than guess.
 - `persona_role`: `buyer`, `champion`, `blocker`, or `other`, per the ICP.
 - `fit_reason`: which ICP rules match, in plain words.
 - `trigger_event`: the public event that makes it timely, if any.
+- `signal_type`: the ICP trigger's event name it matched.
+- `signal_date`: the date shown on the source page, if any.
 - `source_url`: the page that supports the facts. Required.
 - `dedupe_key`: `lower(company_domain) || '|' || lower(coalesce(contact_name, ''))`.
 

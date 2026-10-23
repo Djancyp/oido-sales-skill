@@ -6,7 +6,7 @@ An outbound sales skill for any organization. It onboards an org, defines its id
 
 1. **Onboards an org**: name, domain, and what it sells.
 2. **Defines the ICP**: industries, company size, stages, geographies, personas (buyer, champion, blocker), buying triggers, and an anti-ICP.
-3. **Finds prospects** from public sources, each with a fit reason and a source URL.
+3. **Finds leads on the web** from live signals (job posts, funding, launches, leadership changes, directories) using web search and page fetch. Every lead is verified against a page opened in the session, with a fit reason, signal date and source URL. Companies are never added from memory.
 4. **Drafts first messages and follow-ups** that cite a real trigger.
 5. **Waits for approval.** Nothing is sent until the user approves that exact message.
 6. **Tracks the pipeline**: prospect status, sent messages, replies, and opt-outs.
@@ -20,7 +20,8 @@ An outbound sales skill for any organization. It onboards an org, defines its id
 | `referances/db-schema.md` | Postgres DDL for the four tables |
 | `referances/db-usage.md` | Which action writes to which table, plus query patterns |
 | `referances/icp-research.md` | Defines and saves the org's ICP |
-| `referances/prospecting.md` | Find, qualify, draft, approve, send, follow up |
+| `referances/lead-finding.md` | Web lead search: signals, verification, saving |
+| `referances/prospecting.md` | Draft, approve, send, follow up, pipeline |
 
 ## Data model
 
