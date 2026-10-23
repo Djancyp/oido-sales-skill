@@ -103,6 +103,9 @@ CREATE TABLE IF NOT EXISTS oido_sales_prospects (
   contact_name    TEXT,
   contact_title   TEXT,
   contact_url     TEXT,                                -- public profile, if sourced
+  contact_email   TEXT,                                -- published only; never guessed
+  contact_phone   TEXT,                                -- published only; may be a company main line
+  contact_source_url TEXT,                             -- page where the email or phone is published
   persona_role    TEXT        CHECK (persona_role IN ('buyer', 'champion', 'blocker', 'other')),
   fit_reason      TEXT        NOT NULL,                -- why it matches the ICP, in one or two sentences
   trigger_event   TEXT,                                -- the "why now", if any
@@ -120,6 +123,15 @@ CREATE TABLE IF NOT EXISTS oido_sales_prospects (
 -- Upgrade path for tables created before these columns existed.
 ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS signal_type TEXT;
 ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS signal_date DATE;
+ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS contact_email TEXT;
+ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS contact_phone TEXT;
+ALTER TABLE oido_sales_prospects ADD COLUMN IF NOT EXISTS contact_source_url TEXT;
+
+-- An email or phone must say where it was published.
+DO $$ BEGIN
+  ALTER TABLE oido_sales_prospects ADD CONSTRAINT oido_sales_prospects_contact_source_chk
+    CHECK ((contact_email IS NULL AND contact_phone IS NULL) OR contact_source_url IS NOT NULL);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE INDEX IF NOT EXISTS oido_sales_prospects_org_status_idx
   ON oido_sales_prospects (org_id, status);

@@ -14,6 +14,17 @@ Connection details come from the user at setup (`setup.md`). Never print the con
 - **Batch multi-row writes** (a list of prospects, a set of drafts) in one transaction.
 - **Use the DB role the user set up.** It needs insert and update on the `oido_sales_` tables; no DDL in day-to-day use.
 
+## Running SQL through a tool
+
+The DB is Postgres. Some SQL tools (for example the Supabase `sp_execute_sql` MCP tool) accept one statement per call and may reject any `;`, even inside a quoted value.
+
+- **One statement per call**, no trailing `;`.
+- **No `;` inside text values.** Write `Raised 15M EUR, hired VP Engineering`, not `Raised 15M EUR; hired VP Engineering`. Applies to `fit_reason`, `trigger_event`, `body` and every other text column.
+- **Escape quotes** by doubling them (`O''Brien`).
+- **After one failure, compare the failing statement with the last one that worked** and change only the difference. Do not retry the same statement, and do not fall back to a "Test" row; it pollutes the org's data. If a test row was inserted, archive it (`status = 'disqualified'`).
+- **Write access may be off.** Such tools can be read-only by default (Supabase: `SUPABASE_ALLOW_*`). If an insert is refused for permissions, tell the user which setting to enable.
+- **Schema setup cannot go through a one-statement tool.** `db-schema.md` has function bodies and `DO` blocks that contain `;`. Ask the user to run it in their SQL editor or `psql`, then verify with the check query in `setup.md`.
+
 ## Action → table
 
 | Action | Table | Write |
@@ -38,6 +49,7 @@ Fill every column the facts support. Leave a column NULL rather than guess.
 - `org_id`: the active org.
 - `company_name`, `company_domain`: from the source.
 - `contact_name`, `contact_title`, `contact_url`: only if a source names them.
+- `contact_email`, `contact_phone`: only if published on a page you opened. `contact_source_url` is then required (the database enforces it). Never guess or build an address from a name pattern.
 - `persona_role`: `buyer`, `champion`, `blocker`, or `other`, per the ICP.
 - `fit_reason`: which ICP rules match, in plain words.
 - `trigger_event`: the public event that makes it timely, if any.

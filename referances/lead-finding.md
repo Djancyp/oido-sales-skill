@@ -44,7 +44,7 @@ Rules for the plan:
 
 1. Run the queries (in parallel where independent).
 2. From the results, choose candidates by source quality: the company's own pages, registries, reputable news and the job post itself rank above aggregators and scraped lists.
-3. Open each candidate's source page. Extract only what is on it: company name, domain, size or size hint, geography, the signal and its date, and a contact only if the page publishes one.
+3. Open each candidate's source page. Extract only what is on it: company name, domain, size or size hint, geography, the signal and its date, and any contact the page publishes.
 
 ## Step 3 — verify each candidate
 
@@ -59,8 +59,25 @@ A candidate passes only if all of these are true. Otherwise drop it and note why
 Persona and contact:
 
 - Name a person only when a page you opened names them with their title.
-- Use only contact details the person or company publishes for business use, such as a profile URL or a published address. **Never guess or construct email addresses, and never use purchased or scraped lists.**
-- No named contact is fine. A company-level lead with a good signal is valid; leave the contact fields NULL.
+- A lead is only reachable if it has at least one channel: `contact_email`, `contact_phone` or `contact_url`. Run Step 3b for every lead that passes. A lead with no channel after Step 3b is still saved, but report it as "no contact found" so the user can decide.
+
+## Step 3b — find contact details
+
+Look for contact details on pages you can open, in this order. Stop at the first that yields what the lead needs.
+
+1. **The company's own site:** contact, team, about, press and careers pages; a "contact" block on the job post itself.
+2. **The person's published profile:** their company bio, conference or podcast speaker page, a byline or author page, their own site.
+3. **Public registries and filings:** company registries and regulatory filings often list a registered address, a company phone and officer names.
+4. **An enrichment tool the user has connected** (for example an email or contact-data MCP). Use it only if the user set it up for this org, and record that in `contact_source_url` or the report. Do not suggest or sign up for one on the user's behalf.
+
+Rules:
+
+- **Published only.** Save an email or phone only if the exact string appears on a page you opened (or in the enrichment tool's response). Save that page's URL in `contact_source_url`.
+- **Never guess or construct addresses.** No `first.last@domain` patterns, no "try these variants", no SMTP probing. Unverified guesses bounce, damage the sender's domain, and are not sourced.
+- **Never use purchased, leaked or scraped lists.**
+- **Match the person.** A personal email or direct line goes on the contact only if the page ties it to that person. A shared address (`info@`, `sales@`, a main switchboard) is company-level; it is valid, but say so in the report. It is not that person's direct contact.
+- **Business contact only.** Do not save personal mobile numbers, home addresses or social accounts that are not for business.
+- **Fall back to the profile.** If no email or phone is published, keep `contact_url` (the public profile) and let the user choose a channel.
 
 ## Step 4 — save
 
@@ -70,12 +87,13 @@ Save passing candidates in one batch (`db-usage.md`, "Saving a prospect"), with:
 - `signal_type`: the ICP trigger's event name it matched.
 - `signal_date`: the date on that page, if shown.
 - `fit_reason`: which ICP rules it matches, in plain words.
+- `contact_email`, `contact_phone`, `contact_source_url`: from Step 3b. Leave all three NULL if nothing was published.
 
 ## Step 5 — report
 
-Show the user a table of saved leads (company, signal, date, source) and a short count line:
+Show the user a table of saved leads and a short count line. Columns: company, domain, contact, title, email, phone, signal, source. Write `not found` in an empty email or phone cell, and mark a shared or switchboard contact as `(company)`.
 
-`Found <n> candidates · verified <m> · saved <k> · dropped <d> (reasons)`
+`Found <n> candidates · verified <m> · saved <k> · with email <e> · with phone <p> · dropped <d> (reasons)`
 
 List drop reasons in groups (not real, outside ICP, anti-ICP, stale, duplicate) so the user can tell the ICP or queries to change.
 

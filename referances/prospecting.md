@@ -8,6 +8,7 @@ Finding and verifying leads is `lead-finding.md`. Start there if there are no `n
 
 For each prospect the user wants to reach:
 
+- Pick the channel from what is on the row. `email` needs `contact_email`. `linkedin` needs `contact_url`. If neither exists, do not draft; run `lead-finding.md` Step 3b for that prospect or ask the user for a channel.
 - Write a short first message for the org's `offer`. Cite the trigger or a sourced detail. No invented claims, metrics or praise.
 - Include a clear, single ask and an easy "no" (for example: "Happy to close the loop if this isn't a priority").
 - Keep the body short enough to read on a phone. Plain text, no tracking links unless the user supplies them.
